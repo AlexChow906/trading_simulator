@@ -28,6 +28,8 @@ endif()
 
 # Main executable
 add_executable(trading_engine src/main.cpp)
+add_library(order_book src/order_book/order_book.cpp)
+target_include_directories(order_book PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 # --- Testing ---
 # FetchContent downloads and builds GoogleTest as part of our project
@@ -42,6 +44,5 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 add_executable(unit_tests tests/order_test.cpp)
-target_link_libraries(unit_tests GTest::gtest_main)
-target_include_directories(unit_tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(unit_tests GTest::gtest_main order_book)
 add_test(NAME unit_tests COMMAND unit_tests)
