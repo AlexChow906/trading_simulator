@@ -28,7 +28,7 @@ endif()
 
 # Main executable
 add_executable(trading_engine src/main.cpp)
-add_library(order_book src/order_book/order_book.cpp)
+add_library(order_book src/order_book/order_book.cpp src/matching_engine/matching_engine.cpp)
 target_include_directories(order_book PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 # --- Testing ---
@@ -43,6 +43,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
-add_executable(unit_tests tests/order_test.cpp)
+add_executable(unit_tests tests/order_test.cpp tests/matching_engine_test.cpp)
 target_link_libraries(unit_tests GTest::gtest_main order_book)
 add_test(NAME unit_tests COMMAND unit_tests)

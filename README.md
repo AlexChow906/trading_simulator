@@ -52,8 +52,8 @@ docs/             # Documentation and architecture diagrams
 
 - [x] Phase 1 — Project setup, build system, test infrastructure
 - [x] Phase 2 — Core domain model (Order, Side, OrderType)
-- [ ] Phase 3 — Limit order book (bid/ask books, price levels, FIFO matching)
-- [ ] Phase 4 — Matching engine (limit/market orders, partial fills, trade generation)
+- [x] Phase 3 — Limit order book (bid/ask books, price levels, FIFO matching)
+- [x] Phase 4 — Matching engine (limit/market orders, partial fills, trade generation)
 - [ ] Phase 5 — Benchmarking (latency distributions, throughput measurement)
 - [ ] Phase 6 — Multithreading (producer/consumer queues, dedicated threads)
 - [ ] Phase 7 — Networking (TCP gateway via Boost.Asio)
