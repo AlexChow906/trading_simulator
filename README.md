@@ -30,6 +30,22 @@ cmake --build build/release
 ctest --test-dir build/debug --output-on-failure
 ```
 
+## Benchmark
+
+Benchmarks must be built in Release mode — Debug builds include sanitizers and no optimization, so the numbers are meaningless.
+
+```bash
+# Build the Release benchmarks
+cmake -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build/release
+
+# Throughput (Google Benchmark): order insertion, cancellation, matching
+./build/release/benchmarks
+
+# Latency distribution (manual harness): p50 / p99 / p99.9
+./build/release/latency_benchmark
+```
+
 ## Project Structure
 
 ```
@@ -54,7 +70,7 @@ docs/             # Documentation and architecture diagrams
 - [x] Phase 2 — Core domain model (Order, Side, OrderType)
 - [x] Phase 3 — Limit order book (bid/ask books, price levels, FIFO matching)
 - [x] Phase 4 — Matching engine (limit/market orders, partial fills, trade generation)
-- [ ] Phase 5 — Benchmarking (latency distributions, throughput measurement)
+- [x] Phase 5 — Benchmarking (latency distributions, throughput measurement)
 - [ ] Phase 6 — Multithreading (producer/consumer queues, dedicated threads)
 - [ ] Phase 7 — Networking (TCP gateway via Boost.Asio)
 - [ ] Phase 8 — Optimization (custom allocators, cache alignment, profiling)

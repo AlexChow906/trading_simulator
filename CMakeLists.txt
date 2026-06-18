@@ -46,3 +46,20 @@ enable_testing()
 add_executable(unit_tests tests/order_test.cpp tests/matching_engine_test.cpp)
 target_link_libraries(unit_tests GTest::gtest_main order_book)
 add_test(NAME unit_tests COMMAND unit_tests)
+
+# --- Benchmarking ---
+# Google Benchmark, fetched the same way as GoogleTest
+FetchContent_Declare(
+    benchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG v1.9.1
+)
+# Don't build Google Benchmark's own test suite — faster builds, avoids a second googletest copy
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(benchmark)
+
+add_executable(benchmarks benchmarks/order_book_benchmark.cpp)
+target_link_libraries(benchmarks benchmark::benchmark order_book)
+
+add_executable(latency_benchmark benchmarks/latency_benchmark.cpp)
+target_link_libraries(latency_benchmark order_book)
