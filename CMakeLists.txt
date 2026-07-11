@@ -27,7 +27,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 # Main executable
-add_executable(trading_engine src/main.cpp)
 add_library(order_book src/order_book/order_book.cpp src/matching_engine/matching_engine.cpp src/matching_engine/engine_runner.cpp)
 target_include_directories(order_book PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
@@ -64,3 +63,19 @@ target_link_libraries(benchmarks benchmark::benchmark order_book)
 
 add_executable(latency_benchmark benchmarks/latency_benchmark.cpp)
 target_link_libraries(latency_benchmark order_book)
+
+# --- Networking ---
+# Asio is header-only — no separate build step, just fetch and expose the headers
+FetchContent_Declare(
+    asio
+    GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+    GIT_TAG asio-1-30-2
+)
+FetchContent_MakeAvailable(asio)
+
+add_library(gateway src/gateway/gateway.cpp src/gateway/session.cpp)
+target_link_libraries(gateway order_book)
+target_include_directories(gateway PUBLIC ${CMAKE_SOURCE_DIR}/include ${asio_SOURCE_DIR}/asio/include)
+
+add_executable(gateway_server src/main.cpp)
+target_link_libraries(gateway_server gateway)

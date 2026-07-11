@@ -72,7 +72,7 @@ docs/             # Documentation and architecture diagrams
 - [x] Phase 4 — Matching engine (limit/market orders, partial fills, trade generation)
 - [x] Phase 5 — Benchmarking (latency distributions, throughput measurement)
 - [x] Phase 6 — Multithreading (producer/consumer queues, dedicated threads)
-- [ ] Phase 7 — Networking (TCP gateway via Boost.Asio)
+- [x] Phase 7 — Networking (TCP gateway via Boost.Asio)
 - [ ] Phase 8 — Optimization (custom allocators, cache alignment, profiling)
 - [ ] Phase 9 — Polish (Dockerfile, CI, architecture diagrams)
 - [ ] Phase 10 — Strategy agent layer (market-making + execution agents trading against the engine over the gateway)

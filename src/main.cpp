@@ -1,6 +1,8 @@
 #include <cstdio>
 
+#include "gateway/gateway.h"
+
 int main() {
-    std::puts("low_latency_trading_engine v0.1.0");
-    return 0;
+    Gateway gateway(8888);
+    gateway.run();
 }

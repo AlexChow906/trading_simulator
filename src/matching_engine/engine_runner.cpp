@@ -47,6 +47,6 @@ void EngineRunner::market_data_loop() {
     if (!trade) {
       break;
     }
-    printf("Trade id: %llu, price: %2f, quantity: %d", trade->trade_id, trade->price, trade->quantity);
+    printf("Trade id: %llu, price: %.2f, quantity: %u\n", trade->trade_id, trade->price, trade->quantity);
   }
 }
