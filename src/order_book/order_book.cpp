@@ -3,6 +3,7 @@
 
 void OrderBook::add_order(const Order& order) {
   Order* stored = pool_.allocate();
+  if (!stored) return;
   *stored = order;
   auto& book = (order.side == Side::Buy) ? bids_ : asks_;
   auto& level = book[order.price];

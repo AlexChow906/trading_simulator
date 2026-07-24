@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++
+
+      - name: Build (Debug + sanitizers)
+        run: |
+          cmake -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build/debug
+
+      - name: Run tests
+        run: ctest --test-dir build/debug --output-on-failure
+
+      - name: Build (Release)
+        run: |
+          cmake -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/release
+
+      - name: Run benchmarks
+        run: |
+          ./build/release/benchmarks
+          ./build/release/latency_benchmark
