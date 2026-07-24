@@ -2,11 +2,13 @@
 #include "matching_engine/trade.h"
 
 void OrderBook::add_order(const Order& order) {
+  Order* stored = pool_.allocate();
+  *stored = order;
   auto& book = (order.side == Side::Buy) ? bids_ : asks_;
   auto& level = book[order.price];
 
-  level.orders.push_back(order);
-  order_lookup_[order.order_id] = std::prev(level.orders.end());
+  level.orders.push_back(stored);
+  order_lookup_[order.order_id] = stored;
 }
 
 bool OrderBook::cancel_order(uint64_t order_id) {
@@ -15,15 +17,16 @@ bool OrderBook::cancel_order(uint64_t order_id) {
     return false;
   }
 
-  auto order_it = it->second;
+  Order* order_it = it->second;
   auto& book = (order_it->side == Side::Buy) ? bids_ : asks_;
   double price = order_it->price;
 
-  book[price].orders.erase(order_it);
+  book[price].orders.remove(order_it);
   if(book[price].orders.empty()) {
     book.erase(price);
   }
 
+  pool_.deallocate(order_it);
   order_lookup_.erase(it);
   return true;
 }
@@ -58,21 +61,22 @@ std::vector<Trade> OrderBook::match_order(Order& order, uint64_t& next_trade_id)
         (order.type == OrderType::Limit && order.side == Side::Sell && order.price <= best_price_level->first));
     if (!acceptable_price) break;
 
-    auto& front_order = best_price_level->second.orders.front();
-    auto fill_quantity = std::min(order.quantity, front_order.quantity);
+    Order* front_order = best_price_level->second.orders.front();
+    auto fill_quantity = std::min(order.quantity, front_order->quantity);
 
-    auto buy_order_id = buy_side ? order.order_id : front_order.order_id;
-    auto sell_order_id = buy_side ? front_order.order_id : order.order_id;
-    Trade trade = Trade(next_trade_id++, buy_order_id, sell_order_id, front_order.price, fill_quantity, order.timestamp);
+    auto buy_order_id = buy_side ? order.order_id : front_order->order_id;
+    auto sell_order_id = buy_side ? front_order->order_id : order.order_id;
+    Trade trade = Trade(next_trade_id++, buy_order_id, sell_order_id, front_order->price, fill_quantity, order.timestamp);
 
     trades.push_back(trade);
 
     order.quantity = order.quantity - fill_quantity;
-    front_order.quantity = front_order.quantity - fill_quantity;
+    front_order->quantity = front_order->quantity - fill_quantity;
 
-    if (front_order.quantity == 0) {
-      order_lookup_.erase(front_order.order_id);
-      best_price_level->second.orders.pop_front();
+    if (front_order->quantity == 0) {
+      order_lookup_.erase(front_order->order_id);
+      best_price_level->second.orders.remove(front_order);
+      pool_.deallocate(front_order);
 
       if (best_price_level->second.orders.empty()) {
         book.erase(best_price_level);

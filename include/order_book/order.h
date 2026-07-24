@@ -10,4 +10,6 @@ struct Order {
   double price;
   uint32_t quantity;
   uint64_t timestamp;
+  Order* prev = nullptr;
+  Order* next = nullptr;
 };

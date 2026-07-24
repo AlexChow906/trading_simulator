@@ -35,13 +35,38 @@ Baseline performance of the order book and matching engine, captured at the end 
 - **p99 ≈ p50.** The common case is extremely stable — 99% of operations land within ~1 ns of the median.
 - **p99.9 ≈ 1100 ns — the tail.** ~26× the median. This is caused by heap activity: an occasional `std::list` node allocation hitting a slow allocator path, or the `unordered_map` crossing its load factor and **rehashing** the whole table. One unlucky order pays the full cost. In a live system this is the order that misses the market.
 
-## Optimization notes (targets for Phase 8)
+## Phase 8 — Optimization results
 
-The tail latency — not the average — is the headline problem, and it is structural, not random:
+### Pool allocator + intrusive list
 
-1. **Per-order heap allocation.** Every resting order allocates a `std::list` node. A **memory pool / free-list allocator** with pre-allocated nodes would remove allocator slow-path spikes and flatten the p99.9.
-2. **`unordered_map` rehashing.** Reserving capacity up front (`reserve()`) or replacing it with an open-addressing hash map sized for the expected order count would eliminate rehash spikes.
-3. **Cache locality.** `std::map` (red-black tree) and `std::list` scatter nodes across the heap, so walking price levels chases pointers and misses cache. Flat, contiguous structures (sorted arrays / intrusive lists) would improve locality on the hot matching path.
-4. **`double` prices.** Floating-point comparison and the inability to use prices as direct array indices add cost; fixed-point integer ticks are the standard exchange representation.
+Replaced `std::list<Order>` (per-node heap allocation) with:
+- **Pool allocator** — pre-allocates a contiguous block of Order slots at startup. Allocate/deallocate are O(1) free-list operations with no OS calls.
+- **Intrusive doubly-linked list** — prev/next pointers live inside the `Order` struct itself, so the list never allocates.
 
-Each of these will be benchmarked before and after, so the impact is measured rather than assumed.
+**Pool allocator microbenchmark** (isolated alloc + dealloc cycle):
+
+| Method | Time |
+|--------|------|
+| `new` / `delete` | 22.5 ns |
+| Pool allocator | 9.35 ns |
+
+**2.4x faster** — and critically, no variance from OS allocator slow paths.
+
+**Latency distribution (`add_order`) — before vs after:**
+
+| Percentile | Before (std::list + heap) | After (pool + intrusive list) | Change |
+|------------|--------------------------|-------------------------------|--------|
+| p50 | 1.0 ns | 1.0 ns | — |
+| p99 | 43.0 ns | 42.0 ns | — |
+| p99.9 | 2042.0 ns | 1334.0 ns | **-35%** |
+
+The tail latency (p99.9) dropped from ~2µs to ~1.3µs. The median and p99 are unchanged — those were already fast enough that allocation wasn't the bottleneck.
+
+### Remaining tail latency sources
+
+The residual ~1.3µs p99.9 is driven by:
+- **`std::map` rebalancing** — red-black tree rotations when inserting new price levels
+- **`std::unordered_map` rehashing** — when the order lookup table crosses its load factor
+- **Cache misses** — `std::map` nodes are scattered across the heap
+
+Further optimization would target these with `reserve()` on the hash map, an open-addressing hash table, or a flat sorted structure for price levels.

@@ -43,7 +43,7 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 add_executable(unit_tests tests/order_test.cpp tests/matching_engine_test.cpp tests/thread_safe_queue_test.cpp
-    tests/engine_runner_test.cpp)
+    tests/engine_runner_test.cpp tests/pool_allocator_test.cpp)
 target_link_libraries(unit_tests GTest::gtest_main order_book)
 add_test(NAME unit_tests COMMAND unit_tests)
 
@@ -63,6 +63,9 @@ target_link_libraries(benchmarks benchmark::benchmark order_book)
 
 add_executable(latency_benchmark benchmarks/latency_benchmark.cpp)
 target_link_libraries(latency_benchmark order_book)
+
+add_executable(pool_benchmark benchmarks/pool_allocator_benchmark.cpp)
+target_link_libraries(pool_benchmark benchmark::benchmark order_book)
 
 # --- Networking ---
 # Asio is header-only — no separate build step, just fetch and expose the headers

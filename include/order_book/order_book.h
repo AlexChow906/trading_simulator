@@ -2,7 +2,6 @@
 
 #include <map>
 #include <unordered_map>
-#include <list>
 #include <optional>
 #include <vector>
 
@@ -10,6 +9,7 @@
 #include "order.h"
 #include "price_level.h"
 #include "matching_engine/trade.h"
+#include "concurrency/pool_allocator.h"
 
 class OrderBook{
   public:
@@ -22,5 +22,6 @@ class OrderBook{
   private:
     std::map<double, PriceLevel> bids_;
     std::map<double, PriceLevel> asks_;
-    std::unordered_map<uint64_t, std::list<Order>::iterator> order_lookup_;
+    std::unordered_map<uint64_t, Order*> order_lookup_;
+    PoolAllocator<Order, 1048576> pool_;
 };

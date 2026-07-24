@@ -1,9 +1,9 @@
 #pragma once
 
-#include <list>
+#include "intrusive_list.h"
 #include "order.h"
 
 struct PriceLevel{
   double price;
-  std::list<Order> orders;
+  IntrusiveList orders;
 };
