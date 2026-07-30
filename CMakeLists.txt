@@ -82,3 +82,11 @@ target_include_directories(gateway PUBLIC ${CMAKE_SOURCE_DIR}/include ${asio_SOU
 
 add_executable(gateway_server src/main.cpp)
 target_link_libraries(gateway_server gateway)
+
+# --- Strategy agents ---
+add_library(strategy src/strategy/agent.cpp src/strategy/market_maker.cpp src/strategy/execution_agent.cpp)
+target_link_libraries(strategy order_book)
+target_include_directories(strategy PUBLIC ${CMAKE_SOURCE_DIR}/include ${asio_SOURCE_DIR}/asio/include)
+
+add_executable(simulator src/simulator.cpp)
+target_link_libraries(simulator strategy gateway)

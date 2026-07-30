@@ -74,15 +74,6 @@ docs/             # Documentation and architecture diagrams
 - [x] Phase 6 — Multithreading (producer/consumer queues, dedicated threads)
 - [x] Phase 7 — Networking (TCP gateway via Boost.Asio)
 - [x] Phase 8 — Optimization (custom allocators, cache alignment, profiling)
-- [ ] Phase 9 — Polish (Dockerfile, CI, architecture diagrams)
-- [ ] Phase 10 — Strategy agent layer (market-making + execution agents trading against the engine over the gateway)
-
-### Phase 10 — Strategy agents (stretch goal)
-
-The phases above build *exchange infrastructure* (the venue where orders meet). Phase 10 adds the *participant* side: independent agents that connect to the engine via the Phase 7 gateway, consume the market-data feed, and submit orders — turning the simulator into a full market with participants trading against each other.
-
-- **Market-making agent** — continuously quotes a bid and an ask, earns the spread, and manages inventory risk (e.g. Avellaneda–Stoikov). Fits naturally since a market maker operates directly on the order book.
-- **Execution agents** — momentum and mean-reversion strategies that react to the market-data feed and send marketable orders.
-- **Metrics** — per-agent P&L, fill rates, inventory over time.
-
-Research-flavoured, statistics-heavy models (statistical arbitrage, pairs trading, options pricing, Monte Carlo risk/VaR) are intentionally **out of scope** — they belong in a separate strategy-research project to keep this repo focused on low-latency systems.
+- [x] Phase 9 — Polish (Dockerfile, CI, architecture diagrams)
+- [x] Phase 10 — Strategy agents (market maker, execution agents, P&L tracking, TCP-connected simulator)
+- [ ] Phase 11 — Advanced strategies (momentum, mean-reversion, fill rate metrics)
