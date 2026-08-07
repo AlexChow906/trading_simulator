@@ -76,4 +76,4 @@ docs/             # Documentation and architecture diagrams
 - [x] Phase 8 — Optimization (custom allocators, cache alignment, profiling)
 - [x] Phase 9 — Polish (Dockerfile, CI, architecture diagrams)
 - [x] Phase 10 — Strategy agents (market maker, execution agents, P&L tracking, TCP-connected simulator)
-- [ ] Phase 11 — Advanced strategies (momentum, mean-reversion, fill rate metrics)
+- [x] Phase 11 — Advanced strategies (momentum, mean-reversion, fill rate metrics)

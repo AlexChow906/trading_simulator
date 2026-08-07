@@ -1,8 +1,8 @@
 #include "strategy/agent.h"
 #include "gateway/message.h"
 
-Agent::Agent(const std::string& host, uint16_t port)
-    : socket_(io_context_) {
+Agent::Agent(const std::string& host, uint16_t port, std::string name)
+    : name_(name), socket_(io_context_) {
       tcp::resolver resolver(io_context_);
       auto endpoints = resolver.resolve(host, std::to_string(port));
       asio::connect(socket_, endpoints);
@@ -12,6 +12,15 @@ void Agent::run() {
   on_connected();
   do_read();
   io_context_.run();
+}
+
+void Agent::print_summary() const {
+  printf("[%s] Summary: orders=%llu fills:%llu fill_rate: %.2f%% inv: %d cash: %.2f\n",
+       name_.c_str(), orders_sent_, fills_received_, (double)fills_received_ / orders_sent_ * 100.0, inventory_, cash_);
+}
+
+void Agent::stop() {
+  io_context_.stop();
 }
 
 void Agent::do_read() {
@@ -27,4 +36,5 @@ void Agent::do_read() {
 void Agent::send_order(uint8_t side, uint8_t order_type, double price, uint32_t quantity) {
   OrderMessage msg{next_order_id_++, side, order_type, price, quantity};
   asio::write(socket_, asio::buffer(&msg, sizeof(msg)));
+  orders_sent_++;
 }

@@ -4,7 +4,7 @@
 
 class ExecutionAgent : public Agent {
   public:
-    ExecutionAgent(const std::string& host, uint16_t port, double target_price, uint32_t quantity, bool buy_side, uint32_t interval_ms, uint64_t start_id, std::string name);
+    ExecutionAgent(const std::string& host, uint16_t port, std::string name, double target_price, uint32_t quantity, bool buy_side, uint32_t interval_ms, uint64_t start_id);
     void on_connected() override;
     void on_trade(const TradeMessage& trade) override;
 
@@ -15,6 +15,5 @@ class ExecutionAgent : public Agent {
     uint32_t interval_ms_;
     asio::steady_timer timer_;
     void schedule_order();
-    std::string name_;
     uint64_t start_id_;
 };
